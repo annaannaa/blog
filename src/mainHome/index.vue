@@ -3,6 +3,7 @@
     <div class="leftMenu">
       <login></login>
       <leftMenu></leftMenu>
+      <i class="el-icon-edit"></i>
     </div>
     <!-- 手机端菜单  默认显示为电脑端-->
     <div class="bottomMenu">
@@ -22,6 +23,9 @@ export default {
   components: {
     leftMenu,
     login
+  },
+  mounted () {
+    console.log(this.$router)
   }
 }
 </script>

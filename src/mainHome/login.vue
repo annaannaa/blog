@@ -2,16 +2,26 @@
   <div class="loginBox">
     <div class="logo">logo</div>
     <div class="content">
-      <!-- 头像 -->
-      <img src=""
-           alt="">
-      <span>{{name}}</span>
-      <span>{{state}}</span>
+      <span v-if="loginSate">
+        <img src=""
+             alt="" />
+        <span>{{name}}</span>
+        <i class="el-icon-switch-button"></i>
+      </span>
+      <div v-if="!loginSate">
+        <i class="el-icon-s-custom"></i>
+        <router-link to="/login">
+          <span>登陆</span>
+        </router-link>
+
+      </div>
+
     </div>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   name: 'login',
   data () {
@@ -21,17 +31,9 @@ export default {
     }
   },
   computed: {
-    state: {
-      get () {
-        if (state == false) {
-          state = "未登陆"
-        }
-        if(state == true)
-        {
-          state = this.name;
-        }
-      } 
-    }
+    ...mapState({
+      loginSate: 'loginSate'
+    })
   }
 }
 </script>>
