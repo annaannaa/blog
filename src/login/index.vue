@@ -96,9 +96,13 @@
 <script>
 import secret from '../util/secret'
 import aes from '../util/aes'
+import unicode from '../util/unicode+'
 export default {
   mounted () {
-    aes.enAes('12345678', '1234567812345678')
+    aes.enAes('1234567812345678', '1234567812345678')
+    console.log(unicode)
+    console.log(unicode.encode('12345678'))
+    console.log(unicode.decode('bdfhjlnp'))
     if (JSON.parse(window.localStorage.getItem('user'))) {
       this.userName = JSON.parse(window.localStorage.getItem('user')).userName
       this.password = JSON.parse(window.localStorage.getItem('user')).password
@@ -192,9 +196,9 @@ export default {
       console.log(secret.enCodeAes('123'))
       console.log(secret.deCodeAes('Fyi6kiI24shuDhfyNNHl3g=='))
       if (this.rememberPassword) {
-        window.localStorage.setItem('user', JSON.stringify({ userName: this.userName, password: secret.enCodeAes(this.password) }))
+        window.localStorage.setItem('user', JSON.stringify({ userName: this.userName, password: this.password }))
       }
-      this.$API.postLogin({ name: this.userName, password: secret.enCodeAes(this.password) })
+      this.$API.postLogin({ name: this.userName, password: this.password })
         .then(
           res => {
             if (res.data.msg_code === 1) {
