@@ -1,10 +1,14 @@
 <template>
   <div>
-    <div class="leftMenu">
+    <div class="wrapper">
       <div class="item"
            :key="item"
            v-for="item in  menuItem">
-        <span> {{item.name}}</span>
+        <router-link :to="item.link"
+                     class="titleItem">
+          <span> {{item.name}}</span>
+          <i :class="item.Image"></i>
+        </router-link>
       </div>
     </div>
   </div>
@@ -17,22 +21,34 @@ export default {
     return {
       menuItem: [{
         name: '写博',
-        Image: ''
+        link: '/writeBlog',
+        Image: 'el-icon-edit',
+        index: 1
       }, {
         name: '小组',
-        Image: ''
+        link: '/writeBlog',
+        Image: '',
+        index: 2
       }, {
         name: '新闻',
-        Image: ''
+        link: '/writeBlog',
+        Image: '',
+        index: 3
       }, {
         name: '博问',
-        Image: ''
+        link: '/writeBlog',
+        Image: '',
+        index: 4
       }, {
         name: '收藏',
-        Image: ''
+        link: '/writeBlog',
+        Image: '',
+        index: 5
       }, {
         name: '文库',
-        Image: ''
+        link: '/writeBlog',
+        Image: '',
+        index: 6
       }]
 
     }
@@ -41,13 +57,15 @@ export default {
 }
 </script>>
 <style lang="less" scoped>
-.leftMenu {
-  width: 100%;
-  padding: 20px;
+.wrapper {
   .item {
     height: 50px;
-    span {
-      cursor: pointer;
+    .titleItem {
+      text-decoration: none;
+      color: #000;
+      span {
+        cursor: pointer;
+      }
     }
   }
 }

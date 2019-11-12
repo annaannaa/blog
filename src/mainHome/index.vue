@@ -3,7 +3,6 @@
     <div class="leftMenu">
       <login></login>
       <leftMenu></leftMenu>
-      <i class="el-icon-edit"></i>
     </div>
     <!-- 手机端菜单  默认显示为电脑端-->
     <div class="bottomMenu">
@@ -32,7 +31,9 @@ export default {
 <style lang="less" scoped>
 .leftMenu {
   float: left;
-  width: 20%;
+  width: 30%;
+  box-sizing: border-box;
+  padding: 20px;
 }
 .bottomMenu {
   display: none;
@@ -41,12 +42,12 @@ export default {
   width: 70%;
   float: right;
   height: auto;
-  border: 1px solid #000;
+  //border: 1px solid #000;
   overflow: hidden;
   .top {
     width: 100%;
     height: 20vh;
-    background-image: url("~@/assets/images/topSample2.jpg");
+    background-image: url("~@/assets/images/topSample4.jpg");
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;

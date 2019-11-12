@@ -56,6 +56,7 @@ export default axios
  * @returns {Promise}
  */
 export function get (url, params = {}) {
+  console.log(params)
   return new Promise((resolve, reject) => {
     axios.get(url, {
       params: params
@@ -69,6 +70,17 @@ export function get (url, params = {}) {
   })
 }
 
+// return new Promise((resolve, reject) => {
+//   axios.get(url, {
+//     params: params
+//   })
+//     .then(response => {
+//       resolve(response.data)
+//     })
+//     .catch(err => {
+//       reject(err)
+//     })
+// })
 /**
  * post 请求方法
  * @param url

@@ -204,6 +204,10 @@ export default {
             if (res.data.msg_code === 1) {
               this.$message.error(res.data.msg[0])
             }
+            if (res.data.msg_code === 0) {
+              window.localStorage.setItem('apiToken', res.data.apitoken)
+              window.localStorage.setItem('userId', res.data.UserId)
+            }
           }
         ).catch(err => {
           console.log(err)

@@ -7,14 +7,18 @@ import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import API from './API'
-import baseCss from '@/assets/baseCss.css'
+import './assets/baseCss.css'
 import './assets/css/index.css'
 // import '../element-variables.scss'
 import ElementUI from 'element-ui'
+import VueQuillEditor from 'vue-quill-editor'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+Vue.use(VueQuillEditor);
 Vue.use(ElementUI)
 Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
-Vue.use(baseCss)
 Vue.prototype.$API = API
 /* eslint-disable no-new */
 new Vue({

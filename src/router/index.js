@@ -18,6 +18,14 @@ export default new Router({
   {
     path: '/login',
     component: () => import(`@/login/index`)
+  },
+  {
+    path: '/writeBlog',
+    component: () => import(`@/writeBlog/index`)
+  },
+  {
+    path: '/test',
+    component: () => import(`@/test`)
   }
   ]
 })
