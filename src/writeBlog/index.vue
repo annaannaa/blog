@@ -50,7 +50,7 @@
     </div>
     <!-- 弹出层 -->
     <div class="dialog">
-      <el-dialog title="保存博客"
+      <el-dialog title="博客"
                  :visible.sync="saveBlogDialog">
         <el-form :model="blogForm">
           <el-form-item label="标题">
