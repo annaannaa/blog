@@ -24,6 +24,10 @@ export default new Router({
     component: () => import(`@/writeBlog/index`)
   },
   {
+    path: '/searchBlog',
+    component: () => import(`@/searchBlog/index`)
+  },
+  {
     path: '/test',
     component: () => import(`@/test`)
   }

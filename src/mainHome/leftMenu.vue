@@ -2,7 +2,7 @@
   <div>
     <div class="wrapper">
       <div class="item"
-           :key="item"
+           :key="item.index"
            v-for="item in  menuItem">
         <router-link :to="item.link"
                      class="titleItem">
@@ -25,9 +25,9 @@ export default {
         Image: 'el-icon-edit',
         index: 1
       }, {
-        name: '小组',
-        link: '/writeBlog',
-        Image: '',
+        name: '查博',
+        link: '/searchBlog',
+        Image: 'el-icon-search',
         index: 2
       }, {
         name: '新闻',

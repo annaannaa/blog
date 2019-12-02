@@ -78,7 +78,7 @@
               <el-input show-password
                         class="input"
                         placeholder="确认密码"
-                        v-model="rePassword"
+                        v-model="registerObj.rePassword"
                         clearable>
               </el-input>
             </el-form-item>
@@ -97,19 +97,26 @@
 import secret from '../util/secret'
 import aes from '../util/aes'
 import unicode from '../util/unicode+'
+import { mapState, Store } from 'vuex'
 export default {
   mounted () {
-    aes.enAes('1234567812345678', '1234567812345678')
-    console.log(unicode)
-    console.log(unicode.encode('12345678'))
-    console.log(unicode.decode('bdfhjlnp'))
+    // aes.enAes('1234567812345678', '1234567812345678')
+    // console.log(unicode)
+    // console.log(unicode.encode('12345678'))
+    // console.log(unicode.decode('bdfhjlnp'))
     if (JSON.parse(window.localStorage.getItem('user'))) {
       this.userName = JSON.parse(window.localStorage.getItem('user')).userName
       this.password = JSON.parse(window.localStorage.getItem('user')).password
     }
+    if (JSON.parse(window.localStorage.getItem('registerObj'))) {
+      this.registerObj = JSON.parse(window.localStorage.getItem('registerObj'))
+    }
+
   },
+
   data () {
     var rePasswordValidator = (rule, value, callback) => {
+      console.log(value)
       if (value === '') {
         callback(new Error('请再次输入密码'))
       } else if (value !== this.registerObj.password) {
@@ -119,6 +126,7 @@ export default {
       }
     }
     var userNameValidator = (rule, value, callback) => {
+      console.log(value)
       if (!value) {
         callback(new Error('请输入用户名'))
       } else {
@@ -150,7 +158,8 @@ export default {
         password: '',
         email: '',
         phoneNum: '',
-        isPublic: true
+        isPublic: true,
+        rePassword: ''
       },
       rePassword: '', // 确认密码
       rememberPassword: false, // 记住密码
@@ -181,7 +190,28 @@ export default {
     goRegister (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          // alert('submit!')
+          console.log(1)
+          window.localStorage.setItem('registerObj', JSON.stringify(this.registerObj))
+          this.$API.postRegister(this.registerObj).then(
+            res => {
+
+              if (res.data.msg_code == 0) {
+                this.$message({
+                  showClose: true,
+                  message: "注册成功",
+                  type: 'success'
+                })
+              }
+              else {
+                this.$message({
+                  showClose: true,
+                  message: res.data.msg[0],
+                  type: 'error'
+                })
+              }
+            }
+          )
+
         } else {
           this.$message({
             showClose: true,
@@ -193,8 +223,8 @@ export default {
       })
     },
     goLogin () {
-      console.log(secret.enCodeAes('123'))
-      console.log(secret.deCodeAes('Fyi6kiI24shuDhfyNNHl3g=='))
+      // console.log(secret.enCodeAes('123'))
+      // console.log(secret.deCodeAes('Fyi6kiI24shuDhfyNNHl3g=='))
       if (this.rememberPassword) {
         window.localStorage.setItem('user', JSON.stringify({ userName: this.userName, password: this.password }))
       }
@@ -205,8 +235,11 @@ export default {
               this.$message.error(res.data.msg[0])
             }
             if (res.data.msg_code === 0) {
-              window.localStorage.setItem('apiToken', res.data.apitoken)
-              window.localStorage.setItem('userId', res.data.UserId)
+              this.$message.success(res.data.msg[0])
+              window.sessionStorage.setItem('apiToken', res.data.apitoken)
+              window.sessionStorage.setItem('userId', res.data.UserId)
+              this.$router.push({ name: 'home' })
+              this.$store.commit('ChangeLogin', true)
             }
           }
         ).catch(err => {

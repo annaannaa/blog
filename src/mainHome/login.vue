@@ -13,9 +13,10 @@
         </div>
         <div v-else
              style="float:left">
-          <img src=""
+          <!-- <img src=""
                alt="" />
-          <span>{{name}}</span>
+          <span>{{name}}</span> -->
+          注销
           <i class="el-icon-switch-button"></i>
         </div>
         <div style="float:right;cursor:pointer">
@@ -85,9 +86,12 @@ export default {
     ...mapState({
       loginSate: 'loginSate'
     })
+  },
+  mounted () {
+    console.log(this.loginSate)
   }
 }
-</script>>
+</script>
 
 <style lang="less" scoped>
 .loginBox {

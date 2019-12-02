@@ -2,11 +2,21 @@
   <div class="wrapper">
     <div class="top">
       <div>
-        <el-page-header class="returnBtn"
-                        @back="goBack">
-        </el-page-header>
+        <div style="width: 130px;float:left">
+          <el-page-header class="returnBtn"
+                          @back="goBack">
+          </el-page-header>
+          <span>写博</span>
+        </div>
+        <el-alert v-if="!loginSate"
+                  style="position:absolute;top:0;left:200px;width: 80%;"
+                  title="还没有登录 将无法保存"
+                  type="warning">
+        </el-alert>
+
         <div class="saveBtn"
-             @click="saveBlogDialog=true">保存
+             style="float:right"
+             @click="save">保存
           <i class="el-icon-finished"></i>
         </div>
       </div>
@@ -43,56 +53,114 @@
 
         <quill-editor class="editor"
                       ref="myTextEditor"
-                      v-model="content">
+                      v-model="blogForm.blogContent">
         </quill-editor>
 
       </div>
     </div>
     <!-- 弹出层 -->
     <div class="dialog">
-      <el-dialog title="xc博客"
+      <el-dialog title="保存博客"
                  :visible.sync="saveBlogDialog">
-        <el-form :model="blogForm">
+        <el-form :model="blogForm"
+                 ref="from"
+                 label-width="150px">
           <el-form-item label="标题">
-            <el-input v-model="blogForm.blogTitle"
+            <el-input v-model="blogForm.title"
                       autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="系统类别">
             <el-select v-model="blogForm.blogType"
-                       placeholder="请选择活动区域">
+                       placeholder="请选择活动区域"
+                       style="width:100%">
               <el-option v-for="item in systemBlogType"
-                         :key="item.value"
-                         :label="item.label"
-                         :value="item.value">
+                         :key="item.blogTypeOnlyId"
+                         :label="item.name"
+                         :value="item.blogTypeOnlyId">
               </el-option>
             </el-select>
+          </el-form-item>
+          <el-form-item label="用户自定义类别">
+            <el-select v-model="blogForm.blogUserType"
+                       style="width:100%"
+                       placeholder="请选择活动区域">
+              <el-option v-for="item in blogUserType"
+                         :key="item.blogTypeOnlyId"
+                         :label="item.name"
+                         :value="item.blogTypeOnlyId">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="标签">
+            <el-select v-model="blogForm.blogTag"
+                       multiple
+                       filterable
+                       allow-create
+                       default-first-option
+                       placeholder="请选择或输入标签"
+                       style="width: 100%;">
+              <el-option v-for="item in blogTagOptions"
+                         :key="item.content"
+                         :label="item.content"
+                         :value="item.content">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label='是否公开'>
+            <el-checkbox v-model="blogForm.isPublic"></el-checkbox>
           </el-form-item>
         </el-form>
         <div slot="footer"
              class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button @click="saveBlogDialog = false">取 消</el-button>
           <el-button type="primary"
-                     @click="dialogFormVisible = false">确 定</el-button>
+                     @click="saveOk">确 定</el-button>
         </div>
       </el-dialog>
     </div>
   </div>
 </template>
 <script>
-
+import { mapState } from 'vuex'
 export default {
   mounted () {
     // 获取系统博客类型
-    var token = window.localStorage.getItem('apiToken')
-    console.log(token)
-    this.$API.getBlogType({ 'api_token': token }).then(
+    if (window.sessionStorage.getItem('apiToken')) {
+      this.$store.commit('ChangeLogin', true)
+      this.blogForm.api_token = window.sessionStorage.getItem('apiToken')
+    }
+    this.$API.getBlogType({ 'api_token': this.blogForm.api_token }).then(
       res => {
-        console.log(res)
+        this.systemBlogType = res.data.data
+        this.blogUserType = res.data.udata
+      }
+    ).catch(err => {
+      console.log(err)
+    })
+    //获取系统标签
+    this.$API.getBlogTag({ 'api_token': this.blogForm.api_token }).then(
+      res => {
+        this.blogTagOptions = res.data.data;
+      }
+    ).catch(err => {
+      console.log(err)
+    })
+    //获取我的博客
+    this.$API.getMyBlogList({      index: 1,
+      pagecount: 10,
+      blogtypeId: '',
+      type: 1,
+      isGood: 0,
+      api_token: this.blogForm.api_token
+    }).then(
+      res => {
+        this.myBlogList = res.data.data;
       }
     ).catch(err => {
       console.log(err)
     })
   },
+
   data () {
     return {
       content: '',
@@ -187,27 +255,75 @@ export default {
       ],
       // 系统规定的博客类型
       systemBlogType: [],
+      //用户自定义类别
+      blogUserType: [],
       // 保存博客
       // 弹框显示
       saveBlogDialog: false,
+
       // 弹框From
       blogForm: {
-        blogTitle: '',
-        blogType: ''
-      }
+        title: '',
+        blogType: '',
+        blogContent: '',
+        blogUserType: '',
+        blogTag: [],
+        isPublic: true,
+        api_token: ''
+
+      },
+      //博客标签
+      blogTagOptions: [
+      ],
+      //我的博客列表
+      myBlogList: []
 
     }
   },
+  computed: {
+    ...mapState({
+      loginSate: 'loginSate'
+    })
+  },
+
   methods: {
-    // toggleShow () {
-    //   if (this.closeLeft === false) {
-    //     this.closeLeft = true
-    //     this.openLeft = false
-    //   } else if (this.closeLeft === true) {
-    //     this.closeLeft = false
-    //     this.openLeft = true
-    //   }
-    // }
+
+    save () {
+      if (!this.loginSate) {
+        this.$message.error(
+          "您还没登录呢"
+        )
+        return
+      }
+      this.saveBlogDialog = true
+    },
+
+    saveOk () {
+      if (this.blogForm.title.trim() == '') {
+        this.$message.error("没输入博客标题")
+        return
+      }
+      this.blogForm.blogTag = this.blogForm.blogTag.join(';')
+
+
+      this.$API.save(this.blogForm).then(
+        res => {
+          this.blogForm.blogTag = []
+          if (res.data.msg_code == 1) {
+            this.$message.error(res.data.msg[0])
+          }
+          else {
+            this.$message.success("保存成功，再来一篇")
+            location.reload();
+          }
+          this.saveBlogDialog = true
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+
+    },
+
     load () {
 
     },
@@ -301,6 +417,12 @@ export default {
     }
     .textEditFull {
       width: 100%;
+    }
+  }
+
+  .dialog {
+    .el-form-item__content {
+      text-align: left;
     }
   }
 }

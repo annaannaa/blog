@@ -5,27 +5,33 @@
       <leftMenu></leftMenu>
     </div>
     <!-- 手机端菜单  默认显示为电脑端-->
-    <div class="bottomMenu">
+    <!-- <div class="bottomMenu">
       <bottomMenu></bottomMenu>
-    </div>
+    </div> -->
     <div class="rightContent">
       <div class="top"></div>
     </div>
+    <div class="list">
+      <blogList></blogList>
+    </div>
   </div>
+
 </template>
 
 <script>
 import leftMenu from './leftMenu.vue'
 import login from './login.vue'
+import blogList from './blogList.vue'
 export default {
   name: 'mainHome',
   components: {
     leftMenu,
-    login
+    login,
+    blogList
   },
   mounted () {
-    console.log(this.$router)
-  }
+    // console.log(this.$router)
+  },
 }
 </script>
 <style lang="less" scoped>

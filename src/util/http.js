@@ -21,7 +21,9 @@ axios.interceptors.request.use(
     const token = sessionStorage.getItem('apiToken')
     config.data = JSON.stringify(config.data)
     config.headers = {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      "Access-Control-Max-Age": "1800",
+      'api_token': "g6O1B2rVE8CwkJhJprNDk2GO8O6EKODznUG1uU4xQcc3ZKQZv4NqlUedwCt3"
     }
     if (token) {
       config.headers.Authorization = token
