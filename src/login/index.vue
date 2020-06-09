@@ -190,25 +190,24 @@ export default {
     goRegister (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log(1)
-          window.localStorage.setItem('registerObj', JSON.stringify(this.registerObj))
+
           this.$API.postRegister(this.registerObj).then(
             res => {
 
-              if (res.data.msg_code == 0) {
-                this.$message({
-                  showClose: true,
-                  message: "注册成功",
-                  type: 'success'
-                })
-              }
-              else {
-                this.$message({
-                  showClose: true,
-                  message: res.data.msg[0],
-                  type: 'error'
-                })
-              }
+              // if (res.data.msg_code == 0) {
+              //   this.$message({
+              //     showClose: true,
+              //     message: "注册成功",
+              //     type: 'success'
+              //   })
+              // }
+              // else {
+              //   this.$message({
+              //     showClose: true,
+              //     message: res.data.msg[0],
+              //     type: 'error'
+              //   })
+              // }
             }
           )
 
@@ -238,8 +237,9 @@ export default {
               this.$message.success(res.data.msg[0])
               window.sessionStorage.setItem('apiToken', res.data.apitoken)
               window.sessionStorage.setItem('userId', res.data.UserId)
+              window.sessionStorage.setItem('userName', this.userName)
               this.$router.push({ name: 'home' })
-              this.$store.commit('ChangeLogin', true)
+
             }
           }
         ).catch(err => {
@@ -255,7 +255,6 @@ export default {
 }
 .LoginBox {
   width: 80vw;
-  height: 80vh;
   max-width: 800px;
   // position: absolute;
   //  top: 10%;
@@ -263,7 +262,6 @@ export default {
   /deep/.el-tabs__content {
     padding: 0 5%;
     .input {
-      //width: 90%;
       padding: 3vw 0;
     }
     .button {

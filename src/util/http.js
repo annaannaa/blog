@@ -1,4 +1,6 @@
 import axios from 'axios'
+import store from '../store'
+import { Message } from 'element-ui';
 // import ip from './ipConfig'
 
 // axios 配置
@@ -15,11 +17,13 @@ if (reg.test(host)) {
   axios.defaults.baseURL = protocol + '//' + host
 }
 
+
 // http request拦截器 传递token
 axios.interceptors.request.use(
   config => {
+    store.dispatch('loading/showLoading');
     const token = sessionStorage.getItem('apiToken')
-    config.data = JSON.stringify(config.data)
+    //config.data = JSON.stringify(config.data)
     config.headers = {
       'Content-Type': 'application/json',
       "Access-Control-Max-Age": "1800",
@@ -31,6 +35,8 @@ axios.interceptors.request.use(
     return config
   },
   err => {
+    Message.error('访问服务错误')
+    store.dispatch('loading/hideLoading');
     return Promise.reject(err)
   }
 )
@@ -38,15 +44,38 @@ axios.interceptors.request.use(
 // http response 拦截器（所有接收到的请求都要从这儿过一次）
 axios.interceptors.response.use(
   response => {
-    // if (response.status === 401) {
-    //   this.$router.push({
-    //     path: '/login'
-    //   })
-    // }
+    if (response.status === 401) {
+      this.$router.push({
+        path: '/login'
+      })
+    }
+
+    if (response.data.hasOwnProperty('msg_code')) {
+      if (response.data.msg_code != 0) {
+        if (response.data.hasOwnProperty('msg'))
+          Message.error(response.data.msg[0])
+      } else {
+        if (response.data.hasOwnProperty('msg'))
+          if (typeof (response.data.msg) == "string") {
+            Message.success(response.data.msg || '成功')
+          }
+        if (typeof (response.data.msg) == "object") {
+          Message.success(response.data.msg[0])
+        }
+
+      }
+    }
+
+
+    store.dispatch('loading/hideLoading');
     return response
   },
   error => {
+
+    Message.error('服务返回错误')
+    store.dispatch('loading/hideLoading');
     return Promise.reject(error.response.data)
+
   })
 
 export default axios
@@ -58,7 +87,8 @@ export default axios
  * @returns {Promise}
  */
 export function get (url, params = {}) {
-  console.log(params)
+  console.log(url)
+
   return new Promise((resolve, reject) => {
     axios.get(url, {
       params: params

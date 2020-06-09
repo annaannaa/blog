@@ -1,25 +1,36 @@
 <template>
-  <div>
+  <!-- <div class="wrapper">
     <div class="leftMenu">
       <login></login>
       <leftMenu></leftMenu>
     </div>
-    <!-- 手机端菜单  默认显示为电脑端-->
-    <!-- <div class="bottomMenu">
-      <bottomMenu></bottomMenu>
-    </div> -->
-    <div class="rightContent">
+   
+    <div class="rightContent"
+         id="rightContent">
       <div class="top"></div>
     </div>
-    <div class="list">
-      <blogList></blogList>
-    </div>
-  </div>
+
+    
+    <blogList></blogList>
+  </div> -->
+  <el-container>
+    <el-header>
+      <login></login>
+    </el-header>
+    <el-container>
+      <el-aside width="200px">
+        <leftMenu :menuItem="menuItem"></leftMenu>
+      </el-aside>
+      <el-main>
+        <blogList></blogList>
+      </el-main>
+    </el-container>
+  </el-container>
 
 </template>
 
 <script>
-import leftMenu from './leftMenu.vue'
+import leftMenu from '../components/leftMenu'
 import login from './login.vue'
 import blogList from './blogList.vue'
 export default {
@@ -32,32 +43,50 @@ export default {
   mounted () {
     // console.log(this.$router)
   },
+  data () {    return {
+
+      menuItem: [{
+        name: '主页',
+        link: '/home',
+        Image: 'el-icon-s-home',
+        index: 1
+      },
+      {
+        name: '写博',
+        link: '/writeBlog',
+        Image: 'el-icon-edit',
+        index: 2
+      }, {
+        name: '查博',
+        link: '/searchBlog',
+        Image: 'el-icon-search',
+        index: 3
+      }, {
+        name: '收藏',
+        link: '/writeBlog',
+        Image: 'el-icon-star-off',
+        index: 4
+      }, {
+        name: '我的',
+        link: '/mine',
+        Image: 'el-icon-user',
+        index: 5
+      }]
+
+    }  }
 }
 </script>
 <style lang="less" scoped>
-.leftMenu {
-  float: left;
-  width: 30%;
-  box-sizing: border-box;
-  padding: 20px;
-}
-.bottomMenu {
-  display: none;
-}
-.rightContent {
-  width: 70%;
-  float: right;
-  height: auto;
-  //border: 1px solid #000;
-  overflow: hidden;
-  .top {
-    width: 100%;
-    height: 20vh;
-    background-image: url("~@/assets/images/topSample4.jpg");
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    border-radius: 0 0 10% 10%;
+.el-container {
+  .el-header {
+    height: 200px !important;
+  }
+  .el-container {
+    .el-aside {
+    }
+    .el-main {
+      min-width: 1200px;
+    }
   }
 }
 

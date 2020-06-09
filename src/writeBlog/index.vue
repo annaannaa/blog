@@ -1,28 +1,22 @@
 <template>
   <div class="wrapper">
-    <div class="top">
-      <div>
-        <div style="width: 130px;float:left">
-          <el-page-header class="returnBtn"
-                          @back="goBack">
-          </el-page-header>
-          <span>写博</span>
-        </div>
-        <el-alert v-if="!loginSate"
-                  style="position:absolute;top:0;left:200px;width: 80%;"
-                  title="还没有登录 将无法保存"
-                  type="warning">
-        </el-alert>
-
-        <div class="saveBtn"
-             style="float:right"
-             @click="save">保存
-          <i class="el-icon-finished"></i>
-        </div>
+    <div>
+      <pageTop title="写博"
+               :loginSate="loginSate"></pageTop>
+      <div class="saveBtn"
+           style="position:absolute;top:20px;right:100px"
+           @click="add">新建
+        <i class="el-icon-plus"></i>
       </div>
-      <!-- <span>arrow 返回上一页</span>
-      <span>your Name</span> -->
+      <div class="saveBtn"
+           style="position:absolute;top:20px;right:20px"
+           @click="save">保存
+        <i class="el-icon-finished"></i>
+      </div>
     </div>
+    <!-- <span>arrow 返回上一页</span>
+      <span>your Name</span> -->
+
     <div class="content">
       <div class="arrow "
            @click="openLeftBox=!openLeftBox">
@@ -31,134 +25,120 @@
 
       <div v-if="openLeftBox"
            class="leftStatue">
+        <!-- <loading></loading> -->
         <div class="itemBox infinite-list"
              v-infinite-scroll="load"
              style="overflow:auto">
-          <ul v-for="itemDate in pageLink"
-              :key="itemDate.index"
-              class="pageUl">
-            <li class="date">
-              <i class="el-icon-date"></i>
-              {{itemDate.date}}</li>
-            <li class="pageItem"
+
+          <ul class="pageUl">
+            <li v-for="item in myBlogList"
+                :key="item.id"
+                class="pageLi">
+
+              <i class="el-icon-date">{{item.updated_at}}</i>
+
+              <!-- <router-link :to="{name:'writeBlog',query:{'blogId':item.blogOnlyId}}"> -->
+              <div class="pageItem"
+                   @click="getBlog(item.blogOnlyId)"> {{item.blogTitle}}</div>
+              <!-- </router-link> -->
+              <!-- <div v-html="item.blogContent"></div> -->
+
+              <!-- <li class="pageItem"
                 v-for="item in itemDate.page"
                 :key="item.index">
               {{item.name}}
+            </li> -->
             </li>
           </ul>
         </div>
       </div>
       <div class="textEditor"
            :class="{textEditFull:!openLeftBox}">
-
+        <loading></loading>
         <quill-editor class="editor"
                       ref="myTextEditor"
-                      v-model="blogForm.blogContent">
+                      :options="options"
+                      @change="onEditorChange($event)"
+                      v-model="blogContent">
         </quill-editor>
 
       </div>
     </div>
     <!-- 弹出层 -->
-    <div class="dialog">
-      <el-dialog title="保存博客"
-                 :visible.sync="saveBlogDialog">
-        <el-form :model="blogForm"
-                 ref="from"
-                 label-width="150px">
-          <el-form-item label="标题">
-            <el-input v-model="blogForm.title"
-                      autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="系统类别">
-            <el-select v-model="blogForm.blogType"
-                       placeholder="请选择活动区域"
-                       style="width:100%">
-              <el-option v-for="item in systemBlogType"
-                         :key="item.blogTypeOnlyId"
-                         :label="item.name"
-                         :value="item.blogTypeOnlyId">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="用户自定义类别">
-            <el-select v-model="blogForm.blogUserType"
-                       style="width:100%"
-                       placeholder="请选择活动区域">
-              <el-option v-for="item in blogUserType"
-                         :key="item.blogTypeOnlyId"
-                         :label="item.name"
-                         :value="item.blogTypeOnlyId">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="标签">
-            <el-select v-model="blogForm.blogTag"
-                       multiple
-                       filterable
-                       allow-create
-                       default-first-option
-                       placeholder="请选择或输入标签"
-                       style="width: 100%;">
-              <el-option v-for="item in blogTagOptions"
-                         :key="item.content"
-                         :label="item.content"
-                         :value="item.content">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label='是否公开'>
-            <el-checkbox v-model="blogForm.isPublic"></el-checkbox>
-          </el-form-item>
-        </el-form>
-        <div slot="footer"
-             class="dialog-footer">
-          <el-button @click="saveBlogDialog = false">取 消</el-button>
-          <el-button type="primary"
-                     @click="saveOk">确 定</el-button>
-        </div>
-      </el-dialog>
+    <save-box :show.sync="saveBlogDialog"
+              :modeOprate='mode'
+              :blogId='blogId'
+              :api_token="api_token"
+              :blogContent="blogContent"
+              :blogType="blogType"
+              :blogUserType="blogUserType"
+              :blogTag="blogTagArray"
+              :isPublic="isPublic"
+              :title="title"></save-box>
+    <!-- 真实上传图片按钮 -->
+    <div style="display:none">
+      <el-upload class="upload"
+                 action=""
+                 :http-request="upload"
+                 multiple
+                 :before-upload="beforeUpload"
+                 :file-list="
+                 fileList">
+        <el-button size="small"
+                   type="primary">点击上传</el-button>
+        <div slot="tip"
+             class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+      </el-upload>
     </div>
+
   </div>
 </template>
 <script>
 import { mapState } from 'vuex'
+import top from '../components/top'
+import loading from '../components/loading/loading'
+import saveBox from './saveBox'
+const toolbarOptions = [
+  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+  [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+  [{ 'indent': '-1' }, { 'indent': '+1' }],          // outdent/indent
+  [{ 'direction': 'rtl' }],                         // text direction
+  [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+  [{ 'font': [] }],
+  [{ 'align': [] }],
+  ['link', 'image'],
+  ['clean']
+
+]
 export default {
+  components: {
+    pageTop: top,
+    loading,
+    saveBox
+  },
   mounted () {
+
+
     // 获取系统博客类型
     if (window.sessionStorage.getItem('apiToken')) {
-      this.$store.commit('ChangeLogin', true)
-      this.blogForm.api_token = window.sessionStorage.getItem('apiToken')
+      this.api_token = window.sessionStorage.getItem('apiToken')
     }
-    this.$API.getBlogType({ 'api_token': this.blogForm.api_token }).then(
-      res => {
-        this.systemBlogType = res.data.data
-        this.blogUserType = res.data.udata
-      }
-    ).catch(err => {
-      console.log(err)
-    })
-    //获取系统标签
-    this.$API.getBlogTag({ 'api_token': this.blogForm.api_token }).then(
-      res => {
-        this.blogTagOptions = res.data.data;
-      }
-    ).catch(err => {
-      console.log(err)
-    })
-    //获取我的博客
-    this.$API.getMyBlogList({      index: 1,
-      pagecount: 10,
-      blogtypeId: '',
-      type: 1,
-      isGood: 0,
-      api_token: this.blogForm.api_token
-    }).then(
-      res => {
-        this.myBlogList = res.data.data;
-      }
-    ).catch(err => {
-      console.log(err)
-    })
+
+
+    this.getBlogList();
+
+    if (this.$route.query.hasOwnProperty('blogId')) {
+      this.getBlog(this.$route.query.blogId);
+    }
+
+    //登录状态
+    if (window.localStorage.getItem('user')) {
+
+      this.loginSate = true;
+    }
   },
 
   data () {
@@ -166,6 +146,9 @@ export default {
       content: '',
       // 左边文章栏开关
       openLeftBox: true,
+      loginSate: false,
+      api_token: '',
+      saveBlogDialog: false,
       // 博客文章列表
       pageLink: [
         {
@@ -253,40 +236,84 @@ export default {
           ]
         }
       ],
-      // 系统规定的博客类型
-      systemBlogType: [],
-      //用户自定义类别
-      blogUserType: [],
-      // 保存博客
-      // 弹框显示
-      saveBlogDialog: false,
-
-      // 弹框From
-      blogForm: {
-        title: '',
-        blogType: '',
-        blogContent: '',
-        blogUserType: '',
-        blogTag: [],
-        isPublic: true,
-        api_token: ''
-
-      },
       //博客标签
-      blogTagOptions: [
-      ],
+      blogTag: [],
+
+      //上传图片列表
+      fileList: [],
       //我的博客列表
-      myBlogList: []
+      myBlogList: [],
+      //option
+      options: {
+        placeholder: '请输入......',
+        readOnly: false,
+        theme: 'snow',
+        modules: {
+          toolbar: {
+            container: toolbarOptions,
+            handlers: {
+              'image': function (value) {
+                if (value) {
+                  console.log(value)
+                  // 触发input框选择图片文件
+                  document.querySelector('.upload input').click()
+
+                } else {
+                  this.quill.format('image', false);
+                }
+              }
+            }
+          }
+        }
+      },
+      blogId: "",
+      mode: "ADD",
+      blogContent: '',
+
+      title: '',
+      blogType: '',
+      blogContent: '',
+      blogUserType: '',
+      blogTagArray: [],
+      isPublic: true,
+      api_token: ''
+      ,
 
     }
   },
-  computed: {
-    ...mapState({
-      loginSate: 'loginSate'
-    })
-  },
+
 
   methods: {
+    //处理富文本图片问题
+    onEditorChange ({ editor, html, text }) {
+      //any  
+      console.log(editor, html, text);
+    },
+
+    //beforeUpload
+    beforeUpload (file) {
+      // console.log(file)
+    },
+
+    upload (e) {
+      //10.20.36.74:8000/api/blog/ImgUp
+      let files = e.file;
+      let img = new FormData();
+      img.append('file', files)
+      this.$API.uploadImage(img, this.api_token).then(
+        res => {
+          if (res.data.msg_code == 0) {
+            console.log(res.data.path)
+            this.blogContent += `<img src= "http://${res.data.path}"  alt='' >`
+          } else {
+            this.$message.error(res.data.msg)
+            this.blogContent += "<el-image></el-image>"
+          }
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
 
     save () {
       if (!this.loginSate) {
@@ -295,41 +322,71 @@ export default {
         )
         return
       }
+      if (this.blogContent.trim() == "") {
+        this.$message.error(
+          "您没有输入内容"
+        )
+        return
+      }
       this.saveBlogDialog = true
     },
 
-    saveOk () {
-      if (this.blogForm.title.trim() == '') {
-        this.$message.error("没输入博客标题")
-        return
-      }
-      this.blogForm.blogTag = this.blogForm.blogTag.join(';')
 
-
-      this.$API.save(this.blogForm).then(
+    add () {
+      this.blogContent = ""
+    },
+    getBlogList () {
+      this.$API.getMyBlogList({        index: 1,
+        pagecount: 10,
+        blogtypeId: '',
+        type: 1,
+        isGood: 0,
+        api_token: this.api_token
+      }).then(
         res => {
-          this.blogForm.blogTag = []
-          if (res.data.msg_code == 1) {
-            this.$message.error(res.data.msg[0])
-          }
-          else {
-            this.$message.success("保存成功，再来一篇")
-            location.reload();
-          }
-          this.saveBlogDialog = true
+          this.myBlogList = res.data.data;
+
         }
       ).catch(err => {
         console.log(err)
       })
+    },
+    getBlog (blogId) {
+      console.log(blogId)
+      this.$API.getBlogInfo({ api_token: this.api_token, blogId: blogId }).then(
+        res => {
+          console.log(res)
+          this.blogContent = res.data.data1.blogContent
+          this.title = res.data.data1.blogTitle
+          this.blogType = res.data.data1.blogTypeId
+          this.blogUserType = res.data.data1.blogUserTypeId
+          this.blogTag = res.data.data1.blogTag.split(";")
+          this.blogTagArray = res.data.data1.blogTag
+          this.mode = "UPDATE"
+          this.blogId = res.data.data1.blogOnlyId
+          this.blogContent = res.data.data1.blogContent
+        }
+      ).catch(
+        res => {
+          console.log(res)
+        }
+      )
 
     },
-
     load () {
 
     },
     goBack () {
       window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/')
-    }
+    },
+    // //关闭弹框
+    // CloseDialog () {
+    //   console.log(2)
+    //   this.saveBlogDialog = false;
+    // }
+
+
+
   }
 }
 </script>
@@ -338,30 +395,18 @@ export default {
 .wrapper {
   top: 10px;
   height: 100%;
-  .top {
-    height: 10%;
-    background: #fff;
-    box-sizing: border-box;
-    padding: 20px;
-    .returnBtn {
-      display: inline-block;
-      text-align: left;
-      float: left;
-    }
-    .saveBtn {
-      display: inline-block;
-      cursor: pointer;
-      float: right;
-    }
-    &::after {
-      content: "";
-      clear: both;
-      display: block;
+
+  .saveBtn {
+    display: inline-block;
+    cursor: pointer;
+    float: right;
+    &:hover {
+      background: #ecf5ff;
     }
   }
 
   .content {
-    height: 90%;
+    height: 95%;
     background: antiquewhite;
     position: relative;
     .arrow {
@@ -377,20 +422,25 @@ export default {
       float: left;
       background: #e8e8e8;
       font-size: 14px;
+      position: relative;
       .itemBox {
         height: 100%;
         .pageUl {
-          padding: 15px 0;
-          .date {
-            padding: 10px;
-          }
-          .pageItem {
-            padding: 5px;
-            cursor: pointer;
-            color: #827d7dc7;
-            font-size: 12px;
-            &:hover {
-              color: #000;
+          padding-top: 50px;
+          .pageLi {
+            padding: 10px 5px;
+            /deep/ .el-icon-date {
+              color: #409eff;
+            }
+            .pageItem {
+              text-align: left;
+              padding: 10px;
+              cursor: pointer;
+              color: #827d7dc7;
+              font-size: 12px;
+              &:hover {
+                color: #000;
+              }
             }
           }
         }
@@ -417,12 +467,6 @@ export default {
     }
     .textEditFull {
       width: 100%;
-    }
-  }
-
-  .dialog {
-    .el-form-item__content {
-      text-align: left;
     }
   }
 }
