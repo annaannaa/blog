@@ -3,7 +3,10 @@ import axios from '../util/http'
 // 匹配接口
 
 //test 启用Mock 假数据   
-var tag = '';
+var tag = 'Test';
+if (tag == 'Test') {
+  window.sessionStorage.setItem("apiToken", 'Test')
+}
 
 export default {
 
@@ -23,11 +26,18 @@ export default {
 
   //登陆
   postLogin (data) {
+    if (tag == "Test") {
+      data = ''
+    }
     return axios.post('/api/blog/login', data)
+
   },
 
   //系统博客类型
   getBlogType (data) {
+    if (tag == "Test") {
+      data = ''
+    }
     return axios.get('/api/blog/getType', {
       params: data
     })
@@ -35,7 +45,9 @@ export default {
 
   //标签
   getBlogTag (data) {
-    console.log(data)
+    if (tag == "Test") {
+      data = ''
+    }
     return axios.get('/api/blog/getTag', {
       params: data
     })
@@ -51,6 +63,9 @@ export default {
 
   //我的博客列表
   getMyBlogList (data) {
+    if (tag == "Test") {
+      data = ''
+    }
     return axios.get('/api/blog/myBlog', {
       params: data
     }

@@ -210,12 +210,13 @@ export default {
 
     reflushBlog () {
       //获取博客信息
+
       this.$API.getBlogInfo({ blogId: this.blogId, api_token: this.api_token }).then(
         res => {
 
           this.title = res.data.data1.blogTitle;
           this.content = res.data.data1.blogContent;
-          console.log("content", this.content)
+
           this.blog = res.data.data1;
           // res.data.data2.forEach(e => { e.like = false; e.nolike = false; })
           this.commentList = res.data.data2;

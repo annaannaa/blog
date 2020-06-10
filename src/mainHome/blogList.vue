@@ -135,12 +135,13 @@ export default {
       res => {
         res.data.data.forEach(
           data => {
+            console.log(123, res.data)
             this.systemBlogType.push(data)
           }
         )
-        //  this.systemBlogType = res.data.data
-        console.log("systemBlogType", this.systemBlogType)
-        this.$store.commit('putSysBlogType', this.systemBlogType)
+        // //  this.systemBlogType = res.data.data
+        // console.log("systemBlogType", this.systemBlogType)
+        // this.$store.commit('putSysBlogType', this.systemBlogType)
         window.sessionStorage.setItem("systemBlogType", JSON.stringify(this.systemBlogType))
       }
     ).catch(err => {
@@ -159,6 +160,7 @@ export default {
       this.blogSearch.index++;
       this.loading = true;
       this.$API.getBlogList(this.blogSearch).then(res => {
+        console.log(res)
         if (res.data.data) {
           res.data.data.forEach(element => {
             this.blogContent.push(element)

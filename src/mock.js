@@ -115,11 +115,40 @@ const blogList = function (param) {
   return a
 }
 
+const getSuccess = function () {
+  return 'OK'
+}
+
+const getBlogInfo = function () {
+  return {
+    data1: {
+      blogContent: Random.csentence(50, 200),
+      name: Random.csentence(3, 6)
+    }
+  }
+}
+
+const getBlogType = function () {
+  return {
+    data: [{
+      blogTypeOnlyId: 1,
+      name: '历史'
+    },
+
+    {
+      blogTypeOnlyId: 2,
+      name: '文学'
+    },
+    ]
+  }
+}
+
 // Mock.mock( url, post/get , 返回的数据)；
 const data = {
-  blogList: Mock.mock('/api/blog/search', 'get', blogList)
-  //Mock.mock('/api/blog/getBlogInfo', 'get', blogList)
-
+  blogList: Mock.mock('/api/blog/search', 'get', blogList),
+  postLogin: Mock.mock('/api/blog/login', 'post', getSuccess),
+  getBlogInfo: Mock.mock('/api/blog/getBlogInfo', 'get', getBlogInfo),
+  getBlogType: Mock.mock('/api/blog/getType', 'get', getBlogType)
 }
 
 export default { data };
