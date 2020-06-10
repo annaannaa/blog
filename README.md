@@ -1,5 +1,8 @@
 # blog
 
+这是一个基于vue和element-ui的博客前端代码。已实现访问后端的接口。
+
+
 > A Vue.js project
 
 ## Build Setup
